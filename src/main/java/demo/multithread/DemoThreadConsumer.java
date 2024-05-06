@@ -11,25 +11,26 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DemoConsumerMultiThread extends Thread {
+public class DemoThreadConsumer extends Thread {
     private final KafkaConsumer<String, String> consumer;
     private final AtomicBoolean closed = new AtomicBoolean(false);
-    private final static Logger log = LoggerFactory.getLogger(DemoConsumerMultiThread.class);
+    private final static Logger log = LoggerFactory.getLogger(DemoThreadConsumer.class);
 
-    public DemoConsumerMultiThread(KafkaConsumer<String, String> consumer) {
+    public DemoThreadConsumer(KafkaConsumer<String, String> consumer) {
         this.consumer = consumer;
     }
 
+    @Override
     public void run() {
-        consumer.subscribe(Arrays.asList("demo-topic"));
-        
-        while (!closed.get()) {
+        consumer.subscribe(Arrays.asList("curso-topic"));
             try {
-                ConsumerRecords<String, String> consumers = consumer.poll(Duration.ofMillis(100));
+                while (!closed.get()) {
+                    ConsumerRecords<String, String> consumers = consumer.poll(Duration.ofMillis(100));
 
-                for (ConsumerRecord<String, String> consumerRecord : consumers) {
+                    for (ConsumerRecord<String, String> consumerRecord : consumers) {
 
-                    log.info("Offset = {}, Partition = {},  Key ={}, Value = {}", consumerRecord.offset(), consumerRecord.partition(), consumerRecord.key(), consumerRecord.value());
+                        log.info("Offset = {}, Partition = {},  Key ={}, Value = {}", consumerRecord.offset(), consumerRecord.partition(), consumerRecord.key(), consumerRecord.value());
+                    }
                 }
             } catch (WakeupException e) {
               if(!closed.get()){
@@ -38,7 +39,7 @@ public class DemoConsumerMultiThread extends Thread {
             } finally {
                 consumer.close();
             }
-        }
+
     }
 
     public void shutdown() {

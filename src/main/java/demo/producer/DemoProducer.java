@@ -1,3 +1,5 @@
+package demo.producer;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -13,11 +15,14 @@ public class DemoProducer {
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
 
-
         try (Producer<String,String> producer = new KafkaProducer<>(props);){
-            producer.send(
-                            new ProducerRecord<>("curso-topic", "demo-key","demo-msj")
-                    );
+            for (int i= 0;i<100; i++){
+                producer.send(
+                        new ProducerRecord<>("curso-topic", (i%2==0)? "key-par": "key-impar","demo-msj-ordenada "+ i)
+                );
+            }
+            producer.flush();
         }
+
     }
 }
